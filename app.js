@@ -9,7 +9,7 @@ app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-mongoose.connect("mongodb://localhost:27017/todolistDB", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost:27017/todolistDB", { useNewUrlParser: true, useUnifiedTopology: true  });
 
 const itemsSchema = {
     name: String
@@ -25,21 +25,23 @@ const item_3 = new Item({
     name: "Hit the - button to delete a item..."
 });
 const defaultItems = [item_1, item_2, item_3];
-// Item.insertMany(defaultItems, function (err) {
-//     if (err) {
-//         console.log(err);
-//     }
-//     else {
-//         console.log(itemsFound);
-//     }
-// });
+
 
 app.get("/", function (req, res) {
     Item.find({}, function (err,itemsFound) {
-        if (err){
-            console.log(err);
-        }
-        else{
+        
+            if(itemsFound.length===0){
+Item.insertMany(defaultItems, function (err) {
+    if (err) {
+        console.log(err);
+    }
+    else {
+        console.log(itemsFound);
+    }
+});
+res.redirect("/");
+            }
+            else{
             res.render("list", {
                 ListTitle: "Today",
                 newListItems: itemsFound
