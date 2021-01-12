@@ -25,8 +25,11 @@ const item_3 = new Item({
     name: "Hit the - button to delete a item..."
 });
 const defaultItems = [item_1, item_2, item_3];
-
-
+const listSchema = {
+    name:String,
+    items:[itemsSchema]
+}
+const List =mongoose.model("List",listSchema);
 app.get("/", function (req, res) {
     Item.find({}, function (err, itemsFound) {
 
@@ -48,6 +51,32 @@ app.get("/", function (req, res) {
             });
         }
     });
+
+});
+app.get("/:customListName",function(req,res){
+const customListName= req.params.customListName;
+List.findOne({name:customListName}, function (err, item) {
+    if (!err) {
+        if(!item){
+           //Create a new List
+            const list= new List({
+                name:customListName,
+                items:defaultItems
+            });
+            list.save();
+            res.redirect("/"+customListName);
+        }
+        else {
+           res.render("list", {
+            ListTitle: item.name,
+            newListItems: item.items
+        });
+            
+        }
+       
+    }
+   
+});
 
 });
 
